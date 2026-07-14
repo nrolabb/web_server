@@ -11,14 +11,16 @@ module.exports = {
     var currentTimestamp = new Date().getTime();
     const { type } = req.body;
     const spins = type === "x10" ? 10 : 1;
+    // Chi phí: 1 lần quay = 1000, 10 lần quay = 9000
+    const cost = type === "x10" ? 9000 : 1000;
 
     const info = await user.getInfo();
     if (info[0]?.username) {
       const getUser = info[0];
-      if (getUser.thoi_vang < spins) {
+      if (getUser.vnd < cost) {
         return res.json({
           error: true,
-          message: "Bạn không có đủ lượt quay!"
+          message: `Bạn không đủ số dư! Cần ${cost.toLocaleString()} VNĐ để quay ${spins} lần.`
         });
       }
 
@@ -78,8 +80,10 @@ module.exports = {
         });
       }
 
+      // Trừ số dư VNĐ thay vì thoi_vang
+      const newBalance = getUser.vnd - cost;
       await new Promise((resolve, reject) => {
-        sql.query(`UPDATE account SET thoi_vang = ? WHERE username = ?`, [(getUser.thoi_vang - spins), getUser.username], (err, r) => {
+        sql.query(`UPDATE account SET vnd = ? WHERE username = ?`, [newBalance, getUser.username], (err, r) => {
           if (err) {
             console.error("Lỗi khi cập nhật dữ liệu trong bảng account:", err);
             reject(err);
@@ -91,7 +95,8 @@ module.exports = {
       return res.json({
         error: false,
         data: selectedItems,
-        giftCodes: giftCodes
+        giftCodes: giftCodes,
+        newBalance: newBalance
       });
     } else {
       return res.json({

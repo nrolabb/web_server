@@ -2,34 +2,206 @@
   <body>
     <style>
       .titleSpin{
-    position: absolute;
-    background-color: red;
-    font-family: Pony;
-    color: white;
-    font-size: 16px;
-    padding: 10px;
-    border-radius: 10%;
+        position: absolute;
+        background: linear-gradient(135deg, #ff4d4d, #ff9933);
+        font-family: Pony;
+        color: white;
+        font-size: 16px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(255, 77, 77, 0.4);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
       }
       .showImg {
-  opacity: 1;
-  z-index: 1;
-  position: relative;
-  transform: translateY(-165px);
-  background: white;
-  border-radius: 15px;
-  box-shadow: rgb(175 162 138 / 38%) 1px 1px 10px 6px;
-}
+        opacity: 1;
+        z-index: 1;
+        position: relative;
+        transform: translateY(-165px);
+        background: white;
+        border-radius: 15px;
+        box-shadow: rgb(175 162 138 / 38%) 1px 1px 10px 6px;
+      }
+
+      /* Page title */
+      .spin-page-title {
+        text-align: center;
+        padding: 20px 0 10px;
+        font-family: Pony, sans-serif;
+      }
+      .spin-page-title h1 {
+        font-size: 32px;
+        background: linear-gradient(135deg, #ff6b35, #f7c948, #ff6b35);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: none;
+        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+        margin: 0;
+        letter-spacing: 2px;
+      }
+      .spin-page-title .balance-info {
+        font-size: 15px;
+        color: #555;
+        margin-top: 5px;
+        font-family: sans-serif;
+      }
+      .spin-page-title .balance-info span {
+        color: #ff4d4d;
+        font-weight: bold;
+      }
+
+      /* Spin History Panel */
+      .spin-history-panel {
+        max-width: 800px;
+        margin: 20px auto 30px;
+        padding: 0 15px;
+      }
+      .spin-history-panel .panel-header {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        color: #fff;
+        padding: 14px 20px;
+        border-radius: 12px 12px 0 0;
+        font-family: Pony, sans-serif;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .spin-history-panel .panel-header .icon-history {
+        font-size: 22px;
+      }
+      .spin-history-panel .panel-body {
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid #e0e0e0;
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        max-height: 350px;
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .spin-history-panel .panel-body::-webkit-scrollbar {
+        width: 6px;
+      }
+      .spin-history-panel .panel-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+      }
+      .spin-history-panel .panel-body::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #ff6b35, #f7c948);
+        border-radius: 3px;
+      }
+      .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: sans-serif;
+        font-size: 14px;
+      }
+      .history-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+      .history-table thead th {
+        background: linear-gradient(135deg, #2d3436, #636e72);
+        color: #fff;
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .history-table tbody tr {
+        transition: background-color 0.2s ease;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .history-table tbody tr:hover {
+        background-color: #fff8f0;
+      }
+      .history-table tbody tr:nth-child(even) {
+        background-color: #fafafa;
+      }
+      .history-table tbody tr:nth-child(even):hover {
+        background-color: #fff8f0;
+      }
+      .history-table tbody td {
+        padding: 10px 15px;
+        color: #333;
+      }
+      .history-table .player-name {
+        font-weight: 600;
+        color: #2d3436;
+      }
+      .history-table .item-name {
+        color: #e17055;
+        font-weight: 500;
+      }
+      .history-table .item-time {
+        color: #636e72;
+        font-size: 13px;
+      }
+      .history-table .item-code {
+        font-family: monospace;
+        background: #f0f0f0;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        color: #6c5ce7;
+      }
+      .empty-history {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+        font-style: italic;
+      }
+      .empty-history .icon-empty {
+        font-size: 40px;
+        margin-bottom: 10px;
+      }
+
+      /* New spin highlight animation */
+      @keyframes newSpinHighlight {
+        0% { background-color: #fff3cd; transform: scale(1.01); }
+        100% { background-color: transparent; transform: scale(1); }
+      }
+      .history-table tbody tr.new-spin {
+        animation: newSpinHighlight 2s ease forwards;
+      }
+
+      /* Cost info badges */
+      .spin-cost-info {
+        text-align: center;
+        margin: 10px 0 0;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+      .cost-badge {
+        background: rgba(0,0,0,0.05);
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-family: sans-serif;
+        color: #555;
+      }
+      .cost-badge strong {
+        color: #e17055;
+      }
     </style>
     <%-include("../partials/head.ejs")%>
-            <section class="mt-donwload">
-                <div class="mt-4 mb-4 d-flex justify-content-center text-center">
-                    <div class="title">Tải Game</div>
-                </div>
-                <div class="list-cta flex text-center"><a href="/assets/download/pc.rar" class="download-apk"></a> <a
-                        href="https://testflight.apple.com/join/6OHPuQQZ" class="download-ios"></a> <a href="/assets/download/apk.apk"
-                        class="download-and"></a></div>
-            </section>
-      <section class="section section game_rotation"><!---->
+
+      <!-- Page Title -->
+      <div class="spin-page-title">
+        <h1>🎰 Vòng Quay May Mắn 🎰</h1>
+        <div class="balance-info">Số dư hiện tại: <span id="currentBalance"><%= user[0]?.vnd || 0 %></span> VNĐ</div>
+        <div class="spin-cost-info">
+          <div class="cost-badge">Quay 1 lần: <strong>1,000 VNĐ</strong></div>
+          <div class="cost-badge">Quay 10 lần: <strong>9,000 VNĐ</strong></div>
+        </div>
+      </div>
+
+      <section class="section section game_rotation"><<!---->
         <div class="section__content_rotation">
           <div class="inner_rotation inner--game_rotation">
             <div class="airblowing">
@@ -78,9 +250,52 @@
         </div>
 
       </section>
+
+      <!-- Spin History Panel -->
+      <section class="spin-history-panel">
+        <div class="panel-header">
+          <span class="icon-history">📜</span>
+          Lịch Sử Quay Thưởng
+        </div>
+        <div class="panel-body">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th style="width: 5%">#</th>
+                <th style="width: 25%">Người chơi</th>
+                <th style="width: 35%">Vật phẩm</th>
+                <th style="width: 15%">Mã GiftCode</th>
+                <th style="width: 20%">Thời gian</th>
+              </tr>
+            </thead>
+            <tbody id="spinHistoryBody">
+              <% if (spinHistory && spinHistory.length > 0) { %>
+                <% spinHistory.forEach(function(record, index) { %>
+                  <tr>
+                    <td><%= index + 1 %></td>
+                    <td class="player-name"><%= record.username || 'N/A' %></td>
+                    <td class="item-name"><%= record.name %></td>
+                    <td><span class="item-code"><%= record.code %></span></td>
+                    <td class="item-time"><%= new Date(Number(record.time_stamps)).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) %></td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="5" class="empty-history">
+                    <div class="icon-empty">🎲</div>
+                    Chưa có lịch sử quay nào!
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <script>
        var rut1 = document.querySelector(".rut-1");
           var rut10 = document.querySelector(".rut-10");
+          var isSpinning = false;
 
           const addAndRemoveClass = (element, className, timeout) => {
             element.classList.add(className);
@@ -88,59 +303,135 @@
               element.classList.remove(className);
             }, timeout);
           };
-          rut10.addEventListener("click", ()=>{
-            toastr.error("Chức đang đang phát triển !")
+
+          rut10.addEventListener("click", () => {
+            if (isSpinning) return;
+            handleButtonClick("x10");
           });
-          rut1.addEventListener("click", () =>{
-            handleButtonClick()
-          })
 
+          rut1.addEventListener("click", () => {
+            if (isSpinning) return;
+            handleButtonClick("x1");
+          });
 
-          function handleButtonClick(event) {
+          function handleButtonClick(type) {
+            isSpinning = true;
             var anireward__item = document.querySelectorAll(".anireward__item");
             anireward__item.forEach(async(item, index) => {
               addAndRemoveClass(item, `anireward__running--${index + 1}`, 5000);
             });
-            setTimeout(() =>{
+            setTimeout(() => {
               $.ajax({
               method: "POST",
               url: "/spin",
+              data: JSON.stringify({ type: type }),
               headers:{
                 'Content-type': 'application/json; charset=UTF-8'
               },
-              success: (data, status) =>{
+              success: (data, status) => {
+                       isSpinning = false;
                        if(data.error){
                            toastr["error"](data?.message, "Error")
                        }
                        else {
-                        console.log(data)
+                        console.log(data);
+                        // Update balance display
+                        if (data.newBalance !== undefined) {
+                          document.getElementById("currentBalance").textContent = data.newBalance;
+                        }
+
+                        // Show result modal
                         var spinModal = document.querySelector(".spinModal");
-                        spinModal.innerHTML = `
-                        <div class="gift-container"><button type="button" class="btn btn-primary btn-close-gift">
-            X
-          </button>
-          <div class="row justify-content-end">
-            <div class="col-12 mt-5 d-flex justify-content-center">
-              <div class="titleSpin">${data.data[0].name}</div>
-                <img style="height: auto; width: 50%; top: 100%" src="${data.data[0].img}" class="img showImg">
-              <div class="message-success message-show">
-                <b>${data.giftCodes[0]}</b>
-                </div>
-            </div>
-          </div>
-          </div>
-          <div class="gift-background"></div>
-                        `
-                        document.querySelector(".btn-close-gift").addEventListener("click", () =>{
-            document.querySelector(".spinModal").innerHTML = ``
-          })
+                        if (type === "x10" && data.data.length > 1) {
+                          // Show multiple items for x10
+                          var itemsHtml = data.data.map((item, i) => `
+                            <div style="display:inline-block;margin:5px;text-align:center;">
+                              <div class="titleSpin" style="position:relative;font-size:12px;padding:6px 10px;margin-bottom:5px;">${item.name}</div>
+                              <div style="font-family:monospace;font-size:11px;color:#6c5ce7;background:#f0f0f0;padding:2px 6px;border-radius:4px;">${data.giftCodes[i]}</div>
+                            </div>
+                          `).join('');
+                          spinModal.innerHTML = `
+                          <div class="gift-container"><button type="button" class="btn btn-primary btn-close-gift">
+                            X
+                          </button>
+                          <div class="row justify-content-end">
+                            <div class="col-12 mt-3 d-flex justify-content-center flex-wrap" style="gap:10px;">
+                              ${itemsHtml}
+                            </div>
+                          </div>
+                          </div>
+                          <div class="gift-background"></div>
+                          `;
+                        } else {
+                          spinModal.innerHTML = `
+                          <div class="gift-container"><button type="button" class="btn btn-primary btn-close-gift">
+                            X
+                          </button>
+                          <div class="row justify-content-end">
+                            <div class="col-12 mt-5 d-flex justify-content-center">
+                              <div class="titleSpin">${data.data[0].name}</div>
+                                <img style="height: auto; width: 50%; top: 100%" src="${data.data[0].img}" class="img showImg">
+                              <div class="message-success message-show">
+                                <b>${data.giftCodes[0]}</b>
+                                </div>
+                            </div>
+                          </div>
+                          </div>
+                          <div class="gift-background"></div>
+                          `;
+                        }
+                        document.querySelector(".btn-close-gift").addEventListener("click", () => {
+                          document.querySelector(".spinModal").innerHTML = ``;
+                        });
+
+                        // Add new entries to history table
+                        addToHistory(data);
                        }
                    },
-                   error: (data, status)=>{
+                   error: (data, status) => {
+                       isSpinning = false;
                        toastr["error"](data?.message || "Đã xảy ra lỗi tại máy chủ!", "Error")
                    }
             })
             }, 5000)
+          }
+
+          function addToHistory(data) {
+            var tbody = document.getElementById("spinHistoryBody");
+            // Remove empty state row if present
+            var emptyRow = tbody.querySelector(".empty-history");
+            if (emptyRow) {
+              emptyRow.closest("tr").remove();
+            }
+
+            var currentUsername = "<%= user[0]?.username || 'N/A' %>";
+            var existingRows = tbody.querySelectorAll("tr");
+            var startIndex = existingRows.length;
+
+            for (var i = 0; i < data.data.length; i++) {
+              var now = new Date();
+              var timeStr = now.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+              var newRow = document.createElement("tr");
+              newRow.classList.add("new-spin");
+              newRow.innerHTML = `
+                <td>${startIndex + i + 1}</td>
+                <td class="player-name">${currentUsername}</td>
+                <td class="item-name">${data.data[i].name}</td>
+                <td><span class="item-code">${data.giftCodes[i]}</span></td>
+                <td class="item-time">${timeStr}</td>
+              `;
+              // Insert at the beginning (newest first would be prepend, but matching server order = append)
+              tbody.insertBefore(newRow, tbody.firstChild);
+            }
+
+            // Re-number rows
+            var allRows = tbody.querySelectorAll("tr");
+            allRows.forEach(function(row, idx) {
+              var firstTd = row.querySelector("td:first-child");
+              if (firstTd && !firstTd.classList.contains("empty-history")) {
+                firstTd.textContent = idx + 1;
+              }
+            });
           }
       </script>
       <%-include("../partials/footer.ejs")%>
