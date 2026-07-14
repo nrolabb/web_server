@@ -1,0 +1,232 @@
+<%-include("../partials/meta.ejs")%>
+
+  <body>
+    <%-include("../partials/head.ejs")%>
+      <style>
+        .list-cta {
+          background-color: #f8b52e;
+          padding: 20px;
+        }
+
+        .list-cta ul {
+          list-style-type: none;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+        }
+
+        .list-cta ul li {
+          color: #fff;
+          padding: 10px;
+          font-size: 18px;
+          font-weight: bold;
+          font-family: Pony;
+          margin: 0 5px;
+          cursor: pointer;
+        }
+
+        .input-tab {
+          display: none;
+        }
+
+        .form-select {
+          padding: 10px;
+          font-size: 16px;
+          border-radius: 5px;
+          border: none;
+          background-color: #fff;
+          color: #333;
+          width: 100%;
+          cursor: pointer;
+        }
+
+        .form-select option {
+          background-color: #fff;
+          color: #333;
+        }
+        .bank-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      border: 2px solid #f8b52e; /* Tạo khung cho bank-info */
+      border-radius: 10px; /* Bo tròn góc của khung */
+      padding: 20px; /* Khoảng cách từ nội dung đến khung */
+      max-width: 400px; /* Giới hạn chiều rộng của bank-info */
+    }
+
+    .bank-info .qrcode {
+      margin-bottom: 20px;
+      max-width: 100%; /* Đảm bảo qrcode không vượt quá khung bank-info */
+    }
+
+    .bank-info .transfer-info {
+      background-color: rgba(248, 181, 46, 0.9); /* Màu nền với độ trong suốt */
+      padding: 20px;
+      border-radius: 10px;
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Viền xung quanh */
+      margin-bottom: 20px; /* Khoảng cách từ transfer-info đến qrcode */
+    }
+
+    .bank-info .transfer-info h2 {
+      margin-bottom: 10px;
+    }
+
+    .bank-info .transfer-info p {
+      margin: 5px 0;
+    }
+
+    .bank-info .transfer-info .account-details {
+      background-color: rgba(255, 255, 255, 0.9); /* Màu nền với độ trong suốt */
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Viền xung quanh */
+    }
+
+    .bank-info .transfer-info .account-details p {
+      margin-bottom: 5px;
+    }
+      </style>
+      <section class="mt-donwload">
+        <div class="mt-4 mb-4 d-flex justify-content-center text-center">
+          <div class="title">Nạp Tiền</div>
+        </div>
+        <div class="list-cta flex text-center">
+          <ul>
+            <li id="input-tab-btn" class="active">Thẻ cào</li>
+            <li id="qr-tab-btn">Ngân hàng</li>
+          </ul>
+        </div>
+        <center>
+          <div id="input-tab-content">
+          <p style="font-family: Pony; color: red;">Tính năng nạp thẻ cào không ổn định, vui lòng nạp bằng atm !</p>
+          <div class="col-md-6">
+            <form class="form-horizontal" style="text-align: left">
+              <div class="mb-3">
+                <label class="font-weight-bold">Nhà mạng</label>
+                <select class="form-select" id="telco">
+                  <option selected="" value="VIETTEL">VIETTEL</option>
+                  <option value="VINAPHONE">VINAPHONE</option>
+                  <option value="MOBIFONE">MOBIFONE</option>
+                  <option value="GATE">GATE</option>
+                  <option value="ZING">ZING</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="font-weight-bold">Mệnh giá</label>
+                <select class="form-select" id="menhgia">
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="font-weight-bold">Mã thẻ</label>
+                <input class="form-control" type="text" id="code" placeholder="Mã thẻ" required="">
+              </div>
+
+              <div class="mb-3">
+                <label class="font-weight-bold">Mã serial</label>
+                <input class="form-control" type="text" id="serial" placeholder="Mã serial" required="">
+              </div>
+              <div class="form-group" style="text-align: center">
+                <button type="submit" id="submit" style="font-family: Pony;">
+                  Nạp tiền
+               </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div id="qr-tab-content" class="input-tab">
+          <div class="bank-info">
+            <div class="transfer-info" style="color: #9d441c;">
+              <h2 style="font-family: Pony;">Thông tin chuyển khoản</h2>
+              <p style="font-family: Pony;">Số tài khoản: 0280511032409</p>
+              <p style="font-family: Pony;">Chủ tài khoản: NGUYEN TRONG TAN</p>
+              <p style="font-family: Pony;">Ngân hàng: MB Bank</p>
+              <p style="font-family: Pony;">Nội dung: dragonsuper <%=user[0].username%></p>
+              <p style="font-family: Pony; color: red;">Hệ thống sẽ tự động duyệt từ 1 - 5 phút</p>
+              <p style="font-family: Pony; color: red;">Nếu lâu quá chưa thấy cộng tiền, vui lòng chụp bill gửi cho admin qua zalo !</p>
+              <div class="qrcode">
+                <img style="height: auto; width: 100%;" src="https://api.qrserver.com/v1/create-qr-code/?data=<%=qrcontent%>&amp;size=100x100" alt="QR Code">
+              </div>
+            </div>
+          </div>
+        </div>
+      </center>
+
+      </section>
+
+      <script>
+        document.getElementById('input-tab-btn').addEventListener('click', function () {
+          document.getElementById('input-tab-btn').classList.add('active');
+          document.getElementById('qr-tab-btn').classList.remove('active');
+          document.getElementById('input-tab-content').style.display = 'block';
+          document.getElementById('qr-tab-content').style.display = 'none';
+        });
+
+        document.getElementById('qr-tab-btn').addEventListener('click', function () {
+          document.getElementById('qr-tab-btn').classList.add('active');
+          document.getElementById('input-tab-btn').classList.remove('active');
+          document.getElementById('qr-tab-content').style.display = 'block';
+          document.getElementById('input-tab-content').style.display = 'none';
+        });
+      </script>
+  <script>
+    var telco = document.querySelector("#telco");
+    var menhgia = document.querySelector("#menhgia");
+    var submit = document.querySelector("#submit")
+    var serial = document.querySelector("#serial")
+    var code = document.querySelector("#code")
+
+    function changeMenhGia(value) {
+
+      var optionsData = <%-JSON.stringify(dataCK)%>;
+      var selectedOptionData = optionsData.filter(i => i.telco === value);
+
+      menhgia.innerHTML = "";
+
+      if (selectedOptionData) {
+        for (let key in selectedOptionData) {
+          if (selectedOptionData.hasOwnProperty(key)) {
+            var option = document.createElement("option");
+            option.value = selectedOptionData[key].value;
+            option.text = new Intl.NumberFormat('vi-VN', {
+              style: 'currency',
+              currency: 'VND'
+            }).format(selectedOptionData[key].value, 0);
+            menhgia.appendChild(option);
+          }
+        }
+      } else {
+        console.log("Không tìm thấy thông tin cho giá trị đã chọn.");
+      }
+    }
+
+    changeMenhGia(telco.value);
+    telco.addEventListener("change", () => {
+      changeMenhGia(telco.value);
+    });
+    submit.addEventListener("click", (event) => {
+      event.preventDefault();
+      submit.disabled = true
+      submit.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Vui lòng chờ ....`
+      $.ajax({
+        url: "/gachthe1s/guithe",
+        method: "POST",
+        data: {
+          serial: serial.value,
+          code: code.value,
+          amount: menhgia.value,
+          telco: telco.value
+        },
+        success: (data, status) => {
+          toastr[`${data?.error ? 'error' : 'success'}`](data?.message, `${data?.error ? "Lỗi" : "Thành Công"}`)
+          submit.disabled = false
+          submit.innerHTML = `Đồng ý`
+        }
+      })
+    })
+  </script>
+      <%-include("../partials/footer.ejs")%>

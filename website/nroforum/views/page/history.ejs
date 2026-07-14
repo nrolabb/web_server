@@ -1,0 +1,116 @@
+<%-include("../partials/meta.ejs")%>
+
+  <body style="background-color: #f2f2f2;">
+    <%-include("../partials/head.ejs")%>
+      <style>
+        table {
+          height: auto;
+          width: 90%;
+          border-collapse: collapse;
+          margin: 0 auto;
+          margin-bottom: 20px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+          border: 1px solid #ccc;
+          background-color: white;
+        }
+
+        th,
+        td {
+          padding: 10px;
+          text-align: center;
+          font-family: Pony;
+          border: 1px solid #ccc;
+        }
+
+        th {
+          background-color: #f8b52e;
+          color: white;
+        }
+
+        .copyCode:hover {
+          cursor: pointer;
+        }
+      </style>
+
+      <section class="mt-donwload">
+      </section>
+
+      <section class="section container section--bxh bxh scrollFrame">
+        <!---->
+        <article class="article content-message">
+          <div class="article__meta">
+            <div class="article__user"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                class="user-post-verry kKsfma">
+                <path
+                  d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z">
+                </path>
+              </svg> <img src="<%=options.getAvatar[player[0].gender]%>" class="icon-profile-post"> <b>
+                <%=user[0]?.username%> - số dư: <%=user[0]?.vnd%>
+              </b></div>
+          </div>
+          <div class="article__content mt-2">
+            <div class="text-center mb-2">
+              <!---->
+              <button class="btn button mr-2 btn-main btn-sm"><svg xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 36 24">
+                  <path d="m18 0 8 12 10-8-4 20H4L0 4l10 8 8-12z"></path>
+                </svg>
+                Nạp số dư
+              </button>
+              <button class="btn button mr-2 btn-main btn-sm"><svg xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 36 24">
+                  <path d="m18 0 8 12 10-8-4 20H4L0 4l10 8 8-12z"></path>
+                </svg>
+                Đổi mật khẩu
+              </button> <button class="btn button mr-2 btn-main btn-sm"><svg xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 36 24">
+                  <path d="m18 0 8 12 10-8-4 20H4L0 4l10 8 8-12z"></path>
+                </svg>
+                Mã bảo vệ
+              </button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="section container">
+        <table>
+          <thead>
+            <tr>
+              <th>Tên</th>
+              <th>Giá trị</th>
+              <th>Thời gian</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%history.reverse()%>
+              <%for(let i=0; i < history.length; i++){%>
+                <tr>
+                  <td style="border-right: 1px solid #ccc;">
+                    <%=history[i].name%>
+                  </td>
+                  <td style="border-right: 1px solid #ccc;" class="copyCode" onclick="copy(this)">
+                    <%=history[i].code%>
+                  </td>
+                  <td>
+                    <%=new Date(parseInt(history[i].time_stamps)).toISOString('')%>
+                  </td>
+                </tr>
+                <%}%>
+          </tbody>
+        </table>
+      </section>
+
+      <script>
+        var copyCodeBtn = document.querySelector(".copyCode");
+        function copy(that) {
+          var inp = document.createElement('input');
+          document.body.appendChild(inp)
+          inp.value = that.textContent
+          inp.select();
+          document.execCommand('copy', false);
+          inp.remove();
+          toastr.success("Copy thành công !", "Thành công")
+        }
+      </script>
+  </body>

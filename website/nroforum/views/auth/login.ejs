@@ -1,0 +1,61 @@
+<%-include("../partials/meta.ejs")%>
+
+   <body>
+      <%-include("../partials/head.ejs")%>
+         <section class="mt-donwload">
+            <div class="mt-4 mb-4 d-flex justify-content-center text-center">
+               <div class="title">Đăng nhập</div>
+            </div>
+         </section>
+         <section class="section">
+            <center>
+               <img src="https://www.ngocrongbeo.com/image/welcome.png" style="max-width: 50%; height: auto;">
+               <div class="login-form" >
+                  <span class="input-group">
+                     <label for="username" style="font-family: Pony;">Tài khoản</label>
+                     <input type="text" id="username">
+                     <span class="errors"></span>
+                  </span>
+                  <span class="input-group">
+                     <label for="password" style="font-family: Pony;">Mật khẩu</label>
+                     <input type="password" id="password">
+                     <span class="errors"></span>
+                  </span>
+                  <div class="btn-wrapper">
+                     <button type="submit" id="submit" style="font-family: Pony;">
+                        Đăng nhập
+                     </button>
+                  </div>
+               </div>
+               <p style="font-family: Pony;">Bạn chưa có tài khoản ? <a style="font-family: Pony;" href="/register">Đăng ký ngay</a></p>
+            </center>
+            </section>
+            <script>
+               document.querySelector("#submit").addEventListener("click", ()=>{
+               var username = document.getElementById("username").value;
+               var password = document.getElementById("password").value;
+               $.ajax({
+                   url: "/auth/login",
+                   method: "POST",
+                   data: {
+                       username,
+                       password
+                   },
+                   success: (data, status) =>{
+                       if(data.error){
+                           toastr["error"](data?.message, "Error")
+                       }
+                       else {
+                           toastr["success"](data?.message, "Success")
+                           setTimeout(() =>{
+                               window.location.href = "/"
+                           },3000)
+                       }
+                   },
+                   error: (data, status)=>{
+                       toastr["error"](data?.message || "Đã xảy ra lỗi tại máy chủ!", "Error")
+                   }
+               })
+               })
+           </script>
+         <%-include("../partials/footer.ejs")%>

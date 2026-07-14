@@ -1,0 +1,146 @@
+<%-include("../partials/meta.ejs")%>
+  <body>
+    <style>
+      .titleSpin{
+    position: absolute;
+    background-color: red;
+    font-family: Pony;
+    color: white;
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 10%;
+      }
+      .showImg {
+  opacity: 1;
+  z-index: 1;
+  position: relative;
+  transform: translateY(-165px);
+  background: white;
+  border-radius: 15px;
+  box-shadow: rgb(175 162 138 / 38%) 1px 1px 10px 6px;
+}
+    </style>
+    <%-include("../partials/head.ejs")%>
+            <section class="mt-donwload">
+                <div class="mt-4 mb-4 d-flex justify-content-center text-center">
+                    <div class="title">Tải Game</div>
+                </div>
+                <div class="list-cta flex text-center"><a href="/assets/download/pc.rar" class="download-apk"></a> <a
+                        href="https://testflight.apple.com/join/6OHPuQQZ" class="download-ios"></a> <a href="/assets/download/apk.apk"
+                        class="download-and"></a></div>
+            </section>
+      <section class="section section game_rotation"><!---->
+        <div class="section__content_rotation">
+          <div class="inner_rotation inner--game_rotation">
+            <div class="airblowing">
+              <div id="anireward" class="anireward">
+                <div class="anireward__item anireward__item--1"><img
+                    src="../assets/images/spin/MxrStMQ.png"></div>
+                <div class="anireward__item anireward__item--2"><img
+                    src="../assets/images/spin/cFbZyHg.png"></div>
+                <div class="anireward__item anireward__item--3"><img
+                    src="../assets/images/spin/J6Q30Tz.png"></div>
+                <div class="anireward__item anireward__item--4"><img
+                    src="../assets/images/spin/byPkOwR.png"></div>
+                <div class="anireward__item anireward__item--5"><img
+                    src="../assets/images/spin/02YbcFI.png"></div>
+                <div class="anireward__item anireward__item--6"><img
+                    src="../assets/images/spin/SaQYFBU.png"></div>
+                <div class="anireward__item anireward__item--7"><img
+                    src="../assets/images/spin/ZwxlZQw.png"></div>
+                <div class="anireward__item anireward__item--8"><img
+                    src="../assets/images/spin/tdEvIFz.png"></div>
+                <div class="anireward__item anireward__item--9"><img
+                    src="../assets/images/spin/Wch0Xo8.png"></div>
+                <div class="anireward__item anireward__item--10"><img
+                    src="../assets/images/spin/l3fr7CW.png"></div>
+                <div class="anireward__item anireward__item--11"><img
+                    src="../assets/images/spin/NtTiHP8.png"></div>
+                <div class="anireward__item anireward__item--12"><img
+                    src="../assets/images/spin/55EQLjI.png"></div>
+                <div class="anireward__item anireward__item--13"><img
+                    src="../assets/images/spin/tXexoPJ.png"></div>
+                <div class="anireward__item anireward__item--14"><img
+                    src="../assets/images/spin/QbufFVD.png"></div>
+                <div class="anireward__item anireward__item--15"><img
+                    src="../assets/images/spin/cGEiQkq.png"></div>
+              </div>
+              <div id="action" class="action"><a href="javascript:;"
+                  class="action__open action__open--1 pm__rut rut-1"><img
+                    src="../assets/images/spin/btn.png" class="action__btn"></a> <a
+                  href="javascript:;" class="action__open action__open--10 pm__rut rut-10"><img
+                    src="../assets/images/spin/btn.png" class="action__btn"></a></div>
+            </div>
+          </div>
+        </div>
+        <div class="spinModal">
+        </div>
+        </div>
+
+      </section>
+      <script>
+       var rut1 = document.querySelector(".rut-1");
+          var rut10 = document.querySelector(".rut-10");
+
+          const addAndRemoveClass = (element, className, timeout) => {
+            element.classList.add(className);
+            setTimeout(() => {
+              element.classList.remove(className);
+            }, timeout);
+          };
+          rut10.addEventListener("click", ()=>{
+            toastr.error("Chức đang đang phát triển !")
+          });
+          rut1.addEventListener("click", () =>{
+            handleButtonClick()
+          })
+
+
+          function handleButtonClick(event) {
+            var anireward__item = document.querySelectorAll(".anireward__item");
+            anireward__item.forEach(async(item, index) => {
+              addAndRemoveClass(item, `anireward__running--${index + 1}`, 5000);
+            });
+            setTimeout(() =>{
+              $.ajax({
+              method: "POST",
+              url: "/spin",
+              headers:{
+                'Content-type': 'application/json; charset=UTF-8'
+              },
+              success: (data, status) =>{
+                       if(data.error){
+                           toastr["error"](data?.message, "Error")
+                       }
+                       else {
+                        console.log(data)
+                        var spinModal = document.querySelector(".spinModal");
+                        spinModal.innerHTML = `
+                        <div class="gift-container"><button type="button" class="btn btn-primary btn-close-gift">
+            X
+          </button>
+          <div class="row justify-content-end">
+            <div class="col-12 mt-5 d-flex justify-content-center">
+              <div class="titleSpin">${data.data[0].name}</div>
+                <img style="height: auto; width: 50%; top: 100%" src="${data.data[0].img}" class="img showImg">
+              <div class="message-success message-show">
+                <b>${data.giftCodes[0]}</b>
+                </div>
+            </div>
+          </div>
+          </div>
+          <div class="gift-background"></div>
+                        `
+                        document.querySelector(".btn-close-gift").addEventListener("click", () =>{
+            document.querySelector(".spinModal").innerHTML = ``
+          })
+                       }
+                   },
+                   error: (data, status)=>{
+                       toastr["error"](data?.message || "Đã xảy ra lỗi tại máy chủ!", "Error")
+                   }
+            })
+            }, 5000)
+          }
+      </script>
+      <%-include("../partials/footer.ejs")%>
