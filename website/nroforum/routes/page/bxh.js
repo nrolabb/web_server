@@ -35,7 +35,18 @@ module.exports = {
                 user: await user.getInfo(),
                 type,
                 options,
-                allUser: topUsersResult,
+                allUser: topUsersResult.map(u => {
+                    try {
+                        const dp = JSON.parse(u.data_point);
+                        u.power = dp[1] || 0;
+                        u.pet_power = 0;
+                        return u;
+                    } catch (e) {
+                        u.power = 0;
+                        u.pet_power = 0;
+                        return u;
+                    }
+                }),
                 topReCharge,
                 topQuest
             });

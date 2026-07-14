@@ -59,8 +59,8 @@ module.exports = {
         }
   
         // const hash = crypto.createHash("md5").update(password).digest("hex");
-        const insertUserQuery = `INSERT INTO account (username, password) VALUES (?, ?)`;
-        sql.query(insertUserQuery, [username.toLowerCase(), password], (err, insertResult) => {
+        const insertUserQuery = `INSERT INTO account (username, password, email, token, xsrf_token, newpass) VALUES (?, ?, ?, ?, ?, ?)`;
+        sql.query(insertUserQuery, [username.toLowerCase(), password, '', '', '', ''], (err, insertResult) => {
           if (err) {
             console.error("Lỗi khi thêm dữ liệu vào bảng user:", err);
             return res.json({
