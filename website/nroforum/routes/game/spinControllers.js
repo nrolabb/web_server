@@ -3,6 +3,14 @@ const fs = require("fs-extra");
 
 var items = JSON.parse(fs.readFileSync(__dirname + "/listItem.json"));
 
+// Icon trên vòng quay được xếp cùng thứ tự với danh sách phần thưởng.
+const rewardIcons = [
+  "MxrStMQ.png", "cFbZyHg.png", "J6Q30Tz.png", "byPkOwR.png",
+  "02YbcFI.png", "SaQYFBU.png", "ZwxlZQw.png", "tdEvIFz.png",
+  "Wch0Xo8.png", "l3fr7CW.png", "NtTiHP8.png", "55EQLjI.png",
+  "tXexoPJ.png", "QbufFVD.png", "cGEiQkq.png"
+];
+
 module.exports = {
   name: "spin",
   method: "POST",
@@ -10,9 +18,10 @@ module.exports = {
   run: async ({ res, user, req }) => {
     var currentTimestamp = new Date().getTime();
     const { type } = req.body;
-    const spins = type === "x10" ? 10 : 1;
+    const spinType = type === "x10" ? "x10" : "x1";
+    const spins = spinType === "x10" ? 10 : 1;
     // Chi phí: 1 lần quay = 1000, 10 lần quay = 9000
-    const cost = type === "x10" ? 9000 : 1000;
+    const cost = spinType === "x10" ? 9000 : 1000;
 
     const info = await user.getInfo();
     if (info[0]?.username) {
@@ -38,7 +47,10 @@ module.exports = {
         const randomIndex = Math.floor(Math.random() * totalRatio);
         const selectedItemIndex = ratioArray[randomIndex];
         const selectedItem = items[selectedItemIndex];
-        selectedItems.push(selectedItem);
+        selectedItems.push({
+          ...selectedItem,
+          img: selectedItem.img || `/assets/images/spin/${rewardIcons[selectedItemIndex % rewardIcons.length]}`
+        });
       }
 
       function generateGiftCode(length) {
@@ -68,9 +80,9 @@ module.exports = {
           });
         });
 
-        const insertSpinQuery = 'INSERT INTO spin (account_id, code, name, time_stamps) VALUES (?, ?, ?, ?)';
+        const insertSpinQuery = 'INSERT INTO spin (type, account_id, code, name, time_stamps) VALUES (?, ?, ?, ?, ?)';
         await new Promise((resolve, reject) => {
-          sql.query(insertSpinQuery, [getUser.id, giftCode, selectedItem.name, currentTimestamp], (err, rs) => {
+          sql.query(insertSpinQuery, [spinType, getUser.id, giftCode, selectedItem.name, currentTimestamp], (err, rs) => {
             if (err) {
               console.error("Lỗi khi thêm dữ liệu vào bảng spin:", err);
               reject(err);
@@ -79,6 +91,24 @@ module.exports = {
           });
         });
       }
+
+      // Chỉ giữ lại 200 lượt quay mới nhất trên toàn hệ thống.
+      await new Promise((resolve, reject) => {
+        sql.query('SELECT COUNT(*) AS total FROM spin', (countErr, countRows) => {
+          if (countErr) return reject(countErr);
+
+          const excessRows = Math.max(0, Number(countRows[0]?.total || 0) - 200);
+          if (excessRows === 0) return resolve();
+
+          sql.query(
+            `DELETE FROM spin ORDER BY time_stamps ASC LIMIT ${excessRows}`,
+            (deleteErr) => {
+              if (deleteErr) return reject(deleteErr);
+              resolve();
+            }
+          );
+        });
+      });
 
       // Trừ số dư VNĐ thay vì thoi_vang
       const newBalance = getUser.vnd - cost;

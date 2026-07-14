@@ -1,5 +1,7 @@
-<%- include("../partials/head.ejs") %> <%- include("../partials/sidebar.ejs") %>
-<body class=" ">
+<%-include("../partials/meta.ejs")%>
+<link rel="stylesheet" href="/assets/css/admin.css">
+<body class="admin-body">
+  <%- include("../partials/sidebar.ejs") %>
   <div class="position-relative iq-banner">
     <div class="iq-navbar-header" style="height: 60px"></div>
     <div class="container-fluid content-inner mt-n5 py-0">
@@ -72,5 +74,7 @@
     })
   </script>
 
+  </main>
   <%- include("../partials/footer.ejs") %>
 </body>
+</html>

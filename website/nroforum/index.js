@@ -70,8 +70,6 @@ app.use((req, res, next) => {
     originalRender.call(this, view, options, (err, html) => {
       if (err) {
         console.error(err);
-        res.clearCookie("signature");
-        res.clearCookie("username");
         return res.status(500).send('Error rendering template');
       }
 
@@ -95,12 +93,14 @@ const connection = mysql.createConnection(config.database);
 connection.connect((err) => {
   if (err) {
     console.error("Lỗi kết nối đến cơ sở dữ liệu:", err);
+    process.exitCode = 1;
     return;
   }
   console.log("Kết nối thành công đến cơ sở dữ liệu MySQL");
 });
 
 global.sql = connection;
-app.listen(port, async () => {
+app.listen(port, config.host, async () => {
+  console.log(`Website đang chạy tại http://${config.host}:${port}`);
   middleware({ app, sql: connection });
 });

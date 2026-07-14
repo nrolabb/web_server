@@ -47,7 +47,10 @@ module.exports = async (req, res, next) => {
   var getHistory = (account_id) => {
     try {
       return new Promise((resolve, _) => {
-        global.sql.query("SELECT * FROM spin WHERE account_id = ?", [account_id], (err, results) => {
+        global.sql.query(
+          "SELECT * FROM spin WHERE account_id = ? ORDER BY time_stamps DESC LIMIT 200",
+          [account_id],
+          (err, results) => {
           if (err) {
             console.error("Lỗi khi kiểm tra player:", err);
             resolve({
@@ -55,8 +58,9 @@ module.exports = async (req, res, next) => {
               message: "Lỗi khi kiểm tra player",
             });
           }
-          resolve(results);
-        });
+            resolve(results);
+          }
+        );
       });
     } catch (err) {
       console.log(err);

@@ -1,5 +1,7 @@
-<%-include("../partials/head.ejs")%> <%-include("../partials/sidebar.ejs")%>
-<body class=" ">
+<%-include("../partials/meta.ejs")%>
+<link rel="stylesheet" href="/assets/css/admin.css">
+<body class="admin-body">
+  <%-include("../partials/sidebar.ejs")%>
   <div class="position-relative iq-banner">
     <div class="iq-navbar-header" style="height: 60px"></div>
     <div class="conatiner-fluid content-inner mt-n5 py-0">
@@ -46,7 +48,7 @@
                 </div>
                 <div class="text-end">
                   Tổng thu nhập
-                  <h2><%=new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(allUser.reduce((acc, curr)=> acc + curr.vnd, 0))%></h2>
+                  <h2><%=new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(allUser.reduce((acc, curr)=> acc + (Number(curr.tongnap) || 0), 0))%></h2>
                 </div>
               </div>
             </div>
@@ -98,12 +100,12 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <% allUser.sort((a, b) => b.vnd - a.vnd)%> <% for (let i = 0; i < allUser.length; i++) { %> <% if (i < 3) { %>
+                    <% allUser.sort((a, b) => (Number(b.tongnap) || 0) - (Number(a.tongnap) || 0))%> <% for (let i = 0; i < allUser.length; i++) { %> <% if (i < 3) { %>
                     <tr>
                       <td><%=i+1%></td>
-                      <td><img src="<%=options.getAvatar[allUser[i].character]%>" alt="Avatar 1" width="50" /></td>
+                      <td><img src="/assets/images/images.png" alt="Avatar" width="42" height="42" class="admin-avatar" /></td>
                       <td><%= allUser[i].username %></td>
-                      <td><%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(allUser[i].vnd) %></td>
+                      <td><%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(allUser[i].tongnap) || 0) %></td>
                     </tr>
                     <% } else { %> <% break; %>
                     <!-- Exit the loop when the first 3 users are displayed -->
@@ -117,4 +119,7 @@
       </div>
     </div>
   </div>
+  </main>
   <%-include("../partials/footer.ejs")%>
+</body>
+</html>

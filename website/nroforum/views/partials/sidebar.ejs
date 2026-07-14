@@ -34,7 +34,7 @@
             <span class="mini-icon">-</span>
           </a>
         </li>
-        <% const filteredSidebar = user[0]?.role === 1 ? options.config.sidebar : options.config.sidebar.filter(item => item.name !== "Admin") %>
+        <% const filteredSidebar = user[0]?.is_admin === 1 ? options.config.sidebar : options.config.sidebar.filter(item => item.name !== "Admin") %>
         <%for(let i of filteredSidebar){%>
             <% var { name, path, icon } = i %>
             <%if(name == "Admin"){%>
@@ -75,45 +75,6 @@
                             </i>
                             <i class="sidenav-mini-icon"> C </i>
                             <span class="item-name">Cộng tiền</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <%=options.req.url == "/panel/admin?type=historyBilling" ? "active" : ""%>" href="/panel/admin?type=historyBilling">
-                           <i class="icon">
-                                <svg class="icon-10" xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24" fill="currentColor">
-                                    <g>
-                                    <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
-                                    </g>
-                                </svg>
-                            </i>
-                           <i class="sidenav-mini-icon"> LSN </i>
-                           <span class="item-name">Lịch Sử Nạp</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <%=options.req.url == "/panel/admin?type=editAccount" ? "active" : ""%>" href="/panel/admin?type=editAccount">
-                            <i class="icon">
-                                <svg class="icon-10" xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24" fill="currentColor">
-                                    <g>
-                                    <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
-                                    </g>
-                                </svg>
-                            </i>
-                            <i class="sidenav-mini-icon"> L </i>
-                            <span class="item-name">Danh Sách Tài Khoản</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <%=options.req.url == "/panel/admin?type=settings" ? "active" : ""%>" href="/panel/admin?type=settings">
-                            <i class="icon">
-                                <svg class="icon-10" xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24" fill="currentColor">
-                                    <g>
-                                    <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
-                                    </g>
-                                </svg>
-                            </i>
-                            <i class="sidenav-mini-icon"> S </i>
-                            <span class="item-name">Cài Đặt</span>
                         </a>
                     </li>
                 </ul>
