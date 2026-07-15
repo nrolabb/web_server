@@ -2,6 +2,41 @@ var { isAdmin } = require("../../middleware/auth.middleware.js");
 var config = require("../../config");
 var fs = require("fs-extra");
 var path = require("path");
+var os = require("os");
+
+const getCpuTimes = () => {
+  return os.cpus().reduce(
+    function (totals, cpu) {
+      Object.keys(cpu.times).forEach(function (type) {
+        totals.total += cpu.times[type];
+      });
+      totals.idle += cpu.times.idle;
+      return totals;
+    },
+    { idle: 0, total: 0 }
+  );
+};
+
+const getSystemMetrics = () => {
+  var start = getCpuTimes();
+
+  return new Promise(function (resolve) {
+    setTimeout(function () {
+      var end = getCpuTimes();
+      var idle = end.idle - start.idle;
+      var total = end.total - start.total;
+      var totalRam = os.totalmem();
+      var usedRam = totalRam - os.freemem();
+
+      resolve({
+        cpuUsage: total > 0 ? Math.round((1 - idle / total) * 100) : 0,
+        ramUsage: totalRam > 0 ? Math.round((usedRam / totalRam) * 100) : 0,
+        ramUsedGb: (usedRam / 1024 / 1024 / 1024).toFixed(1),
+        ramTotalGb: (totalRam / 1024 / 1024 / 1024).toFixed(1),
+      });
+    }, 200);
+  });
+};
 
 module.exports = {
   name: "panel/admin",
@@ -98,11 +133,14 @@ module.exports = {
     switch (type) {
       case "home": {
         try {
-          const [totalUsersResult, allUserResult, totalPlayersResult] =
+          const [totalUsersResult, allUserResult, onlinePlayersResult, systemMetrics] =
             await Promise.all([
               queryDatabase("SELECT COUNT(*) AS totalUsers FROM account"),
               queryDatabase("SELECT * FROM account"),
-              queryDatabase("SELECT COUNT(*) AS totalPlayers FROM player"),
+              queryDatabase(
+                "SELECT COUNT(*) AS onlinePlayers FROM account WHERE last_time_login IS NOT NULL AND (last_time_logout IS NULL OR last_time_login > last_time_logout)"
+              ),
+              getSystemMetrics(),
             ]);
 
           var totalRevenue = allUserResult.reduce(function (acc, curr) {
@@ -112,20 +150,27 @@ module.exports = {
           renderPanel("dashboard.ejs", {
             pageTitle: "Dashboard",
             totalUsers: totalUsersResult[0].totalUsers,
-            totalPlayers: totalPlayersResult[0].totalPlayers,
+            onlinePlayers: onlinePlayersResult[0].onlinePlayers,
             totalRevenue: totalRevenue,
             allUser: allUserResult,
             serverConfig: parseServerConfig(),
+            systemMetrics: systemMetrics,
           });
         } catch (err) {
           console.error("Dashboard error:", err);
           renderPanel("dashboard.ejs", {
             pageTitle: "Dashboard",
             totalUsers: 0,
-            totalPlayers: 0,
+            onlinePlayers: 0,
             totalRevenue: 0,
             allUser: [],
             serverConfig: parseServerConfig(),
+            systemMetrics: {
+              cpuUsage: 0,
+              ramUsage: 0,
+              ramUsedGb: "0.0",
+              ramTotalGb: "0.0",
+            },
           });
         }
         break;

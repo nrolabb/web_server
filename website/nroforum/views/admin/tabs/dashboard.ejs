@@ -1,4 +1,17 @@
 <!-- Dashboard Tab -->
+<%
+  var dashboardOnlinePlayers = typeof onlinePlayers !== 'undefined'
+    ? onlinePlayers
+    : (typeof totalPlayers !== 'undefined' ? totalPlayers : 0);
+  var dashboardSystemMetrics = typeof systemMetrics !== 'undefined' && systemMetrics
+    ? systemMetrics
+    : {
+        cpuUsage: 0,
+        ramUsage: 0,
+        ramUsedGb: '0.0',
+        ramTotalGb: '0.0'
+      };
+%>
 <div class="stats-grid">
   <!-- Total Accounts -->
   <div class="stat-card purple">
@@ -22,15 +35,15 @@
     <div class="stat-card-value"><%= new Intl.NumberFormat('vi-VN').format(totalRevenue) %>đ</div>
   </div>
 
-  <!-- Total Players -->
+  <!-- Online Players -->
   <div class="stat-card orange">
     <div class="stat-card-header">
       <div class="stat-card-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
     </div>
-    <div class="stat-card-label">Tổng nhân vật</div>
-    <div class="stat-card-value"><%= totalPlayers %></div>
+    <div class="stat-card-label">SL Player Online</div>
+    <div class="stat-card-value"><%= dashboardOnlinePlayers %></div>
   </div>
 
   <!-- Server Info -->
@@ -40,9 +53,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
       </div>
     </div>
-    <div class="stat-card-label">Max Player</div>
-    <div class="stat-card-value"><%= serverConfig.maxPlayer || 300 %></div>
-    <div class="stat-card-footer">SV: <%= serverConfig.name || 'NRO ARN' %></div>
+    <div class="stat-card-label">CPU / RAM</div>
+    <div class="stat-card-value"><%= dashboardSystemMetrics.cpuUsage %>% / <%= dashboardSystemMetrics.ramUsage %>%</div>
+    <div class="stat-card-footer">RAM: <%= dashboardSystemMetrics.ramUsedGb %> / <%= dashboardSystemMetrics.ramTotalGb %> GB</div>
   </div>
 </div>
 
@@ -69,8 +82,8 @@
         <span class="value"><%= serverConfig.port || 14445 %></span>
       </div>
       <div class="server-info-item">
-        <span class="label">Max Player</span>
-        <span class="value"><%= serverConfig.maxPlayer || 300 %></span>
+        <span class="label">CPU / RAM</span>
+        <span class="value"><%= dashboardSystemMetrics.cpuUsage %>% / <%= dashboardSystemMetrics.ramUsage %>%</span>
       </div>
       <div class="server-info-item">
         <span class="label">EXP Rate</span>

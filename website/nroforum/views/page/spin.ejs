@@ -422,11 +422,10 @@
           <table class="history-table">
             <thead>
               <tr>
-                <th style="width: 5%">#</th>
-                <th style="width: 25%">Người chơi</th>
-                <th style="width: 35%">Vật phẩm</th>
-                <th style="width: 15%">Mã GiftCode</th>
-                <th style="width: 20%">Thời gian</th>
+                <th style="width: 10%">#</th>
+                <th style="width: 45%">Vật phẩm</th>
+                <th style="width: 20%">Mã GiftCode</th>
+                <th style="width: 25%">Thời gian</th>
               </tr>
             </thead>
             <tbody id="spinHistoryBody">
@@ -435,15 +434,23 @@
                 <% history.forEach(function(record, index) { %>
                   <tr>
                     <td><%= index + 1 %></td>
-                    <td class="player-name"><%= record.username || 'N/A' %></td>
-                    <td class="item-name"><%= record.name %></td>
-                    <td><span class="item-code"><%= record.code %></span></td>
+                    <td class="item-name">
+                      <% if (record.type === 'x10' || record.name === 'Combo 10 items') { %>
+                        <a href="javascript:void(0)" onclick="showCombo('<%= record.code %>')" style="color: #ff6b35; text-decoration: underline;"><%= record.name %></a>
+                      <% } else { %>
+                        <%= record.name %>
+                      <% } %>
+                    </td>
+                    <td>
+                      <span class="item-code"><%= record.code %></span>
+                      <span onclick="copyGiftCode('<%= record.code %>')" style="cursor: pointer; margin-left: 8px; font-size: 16px;" title="Copy mã">📋</span>
+                    </td>
                     <td class="item-time"><%= new Date(Number(record.time_stamps)).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) %></td>
                   </tr>
                 <% }); %>
               <% } else { %>
                 <tr>
-                  <td colspan="5" class="empty-history">
+                  <td colspan="4" class="empty-history">
                     <div class="icon-empty">🎲</div>
                     Chưa có lịch sử quay nào!
                   </td>
@@ -759,24 +766,41 @@
               emptyRow.closest("tr").remove();
             }
 
-            var currentUsername = "<%= user[0]?.username || 'N/A' %>";
             var existingRows = tbody.querySelectorAll("tr");
             var startIndex = existingRows.length;
 
-            for (var i = 0; i < data.data.length; i++) {
+            if (data.data.length > 1) {
               var now = new Date();
               var timeStr = now.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
               var newRow = document.createElement("tr");
               newRow.classList.add("new-spin");
               newRow.innerHTML = `
-                <td>${startIndex + i + 1}</td>
-                <td class="player-name">${currentUsername}</td>
-                <td class="item-name">${data.data[i].name}</td>
-                <td><span class="item-code">${data.giftCodes[i]}</span></td>
+                <td>1</td>
+                <td class="item-name"><a href="javascript:void(0)" onclick="showCombo('${data.giftCodes[0]}')" style="color: #ff6b35; text-decoration: underline;">Combo 10 items</a></td>
+                <td>
+                  <span class="item-code">${data.giftCodes[0]}</span>
+                  <span onclick="copyGiftCode('${data.giftCodes[0]}')" style="cursor: pointer; margin-left: 8px; font-size: 16px;" title="Copy mã">📋</span>
+                </td>
                 <td class="item-time">${timeStr}</td>
               `;
-              // Insert at the beginning (newest first would be prepend, but matching server order = append)
               tbody.insertBefore(newRow, tbody.firstChild);
+            } else {
+              for (var i = 0; i < data.data.length; i++) {
+                var now = new Date();
+                var timeStr = now.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+                var newRow = document.createElement("tr");
+                newRow.classList.add("new-spin");
+                newRow.innerHTML = `
+                  <td>1</td>
+                  <td class="item-name">${data.data[i].name}</td>
+                  <td>
+                    <span class="item-code">${data.giftCodes[i]}</span>
+                    <span onclick="copyGiftCode('${data.giftCodes[i]}')" style="cursor: pointer; margin-left: 8px; font-size: 16px;" title="Copy mã">📋</span>
+                  </td>
+                  <td class="item-time">${timeStr}</td>
+                `;
+                tbody.insertBefore(newRow, tbody.firstChild);
+              }
             }
 
             // Re-number rows
@@ -786,6 +810,59 @@
               if (firstTd && !firstTd.classList.contains("empty-history")) {
                 firstTd.textContent = idx + 1;
               }
+            });
+          }
+          function showCombo(code) {
+            $.ajax({
+              method: "GET",
+              url: "/spin-combo?code=" + code,
+              success: function(res) {
+                if(res.error) {
+                  toastr["error"](res.message || "Không thể tải dữ liệu combo", "Lỗi");
+                } else {
+                  var itemsHtml = res.data.map((item, i) => `
+                    <div class="spin-result-item" style="opacity: 1; padding: 15px;">
+                      <img class="spin-result-icon" style="opacity: 1;" src="${item.img}" alt="${item.name}">
+                      <div class="spin-result-name" style="opacity: 1;">${item.name}</div>
+                    </div>
+                  `).join('');
+                  var spinModal = document.querySelector(".spinModal");
+                  spinModal.innerHTML = `
+                  <div class="gift-container gift-container-x10">
+                    <button type="button" class="btn btn-primary btn-close-gift">X</button>
+                    <h3 style="text-align: center; color: white; margin-bottom: 20px; font-family: Pony;">Danh sách 10 vật phẩm</h3>
+                    <div class="spin-result-grid">
+                      ${itemsHtml}
+                    </div>
+                  </div>
+                  <div class="gift-background"></div>
+                  `;
+                  document.querySelector(".btn-close-gift").addEventListener("click", () => {
+                    document.querySelector(".spinModal").innerHTML = ``;
+                  });
+                }
+              },
+              error: function() {
+                toastr["error"]("Đã xảy ra lỗi khi tải dữ liệu combo", "Lỗi");
+              }
+            });
+          }
+          function copyGiftCode(code) {
+            navigator.clipboard.writeText(code).then(function() {
+              toastr["success"]("Đã copy mã: " + code, "Thành công");
+            }, function(err) {
+              // fallback
+              var textArea = document.createElement("textarea");
+              textArea.value = code;
+              document.body.appendChild(textArea);
+              textArea.select();
+              try {
+                document.execCommand('copy');
+                toastr["success"]("Đã copy mã: " + code, "Thành công");
+              } catch (err) {
+                toastr["error"]("Không thể copy mã", "Lỗi");
+              }
+              document.body.removeChild(textArea);
             });
           }
       </script>

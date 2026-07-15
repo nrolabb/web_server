@@ -66,31 +66,61 @@ module.exports = {
       }
 
       const giftCodes = [];
-      for (const selectedItem of selectedItems) {
+      if (spinType === "x10") {
         const giftCode = generateGiftCode(10);
         giftCodes.push(giftCode);
+        let allParams = [];
+        let comboDetails = [];
+        for (const selectedItem of selectedItems) {
+            const p = Array.isArray(selectedItem.params) ? selectedItem.params : [selectedItem.params];
+            allParams = allParams.concat(p);
+            comboDetails.push({ name: selectedItem.name, img: selectedItem.img });
+        }
+        
         const insertUserQuery = 'INSERT INTO giftcode (code, count_left, detail) VALUES (?, ?, ?)';
         await new Promise((resolve, reject) => {
-          const detailJson = Array.isArray(selectedItem.params) ? selectedItem.params : [selectedItem.params];
-          sql.query(insertUserQuery, [giftCode, 1, JSON.stringify(detailJson)], (err, insertResult) => {
-            if (err) {
-              console.error("Lỗi khi thêm dữ liệu vào bảng gift_codes:", err);
-              reject(err);
-            }
-            resolve();
+          sql.query(insertUserQuery, [giftCode, 1, JSON.stringify(allParams)], (err, insertResult) => {
+            if (err) reject(err); else resolve();
           });
         });
 
+        const comboDir = __dirname + "/combo_data";
+        if (!fs.existsSync(comboDir)) fs.mkdirSync(comboDir);
+        fs.writeFileSync(`${comboDir}/${giftCode}.json`, JSON.stringify(comboDetails));
+
         const insertSpinQuery = 'INSERT INTO spin (type, account_id, code, name, time_stamps) VALUES (?, ?, ?, ?, ?)';
         await new Promise((resolve, reject) => {
-          sql.query(insertSpinQuery, [spinType, getUser.id, giftCode, selectedItem.name, currentTimestamp], (err, rs) => {
-            if (err) {
-              console.error("Lỗi khi thêm dữ liệu vào bảng spin:", err);
-              reject(err);
-            }
-            resolve();
+          sql.query(insertSpinQuery, [spinType, getUser.id, giftCode, "Combo 10 items", currentTimestamp], (err, rs) => {
+            if (err) reject(err); else resolve();
           });
         });
+      } else {
+        for (const selectedItem of selectedItems) {
+          const giftCode = generateGiftCode(10);
+          giftCodes.push(giftCode);
+          const insertUserQuery = 'INSERT INTO giftcode (code, count_left, detail) VALUES (?, ?, ?)';
+          await new Promise((resolve, reject) => {
+            const detailJson = Array.isArray(selectedItem.params) ? selectedItem.params : [selectedItem.params];
+            sql.query(insertUserQuery, [giftCode, 1, JSON.stringify(detailJson)], (err, insertResult) => {
+              if (err) {
+                console.error("Lỗi khi thêm dữ liệu vào bảng gift_codes:", err);
+                reject(err);
+              }
+              resolve();
+            });
+          });
+
+          const insertSpinQuery = 'INSERT INTO spin (type, account_id, code, name, time_stamps) VALUES (?, ?, ?, ?, ?)';
+          await new Promise((resolve, reject) => {
+            sql.query(insertSpinQuery, [spinType, getUser.id, giftCode, selectedItem.name, currentTimestamp], (err, rs) => {
+              if (err) {
+                console.error("Lỗi khi thêm dữ liệu vào bảng spin:", err);
+                reject(err);
+              }
+              resolve();
+            });
+          });
+        }
       }
 
       // Chỉ giữ lại 200 lượt quay mới nhất trên toàn hệ thống.
