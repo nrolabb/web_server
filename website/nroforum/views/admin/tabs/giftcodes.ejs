@@ -1,0 +1,84 @@
+<!-- Giftcodes Management Tab -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="form-input" placeholder="Tìm kiếm giftcode..." id="giftcodeSearch" value="<%= searchQuery || '' %>" onkeydown="if(event.key==='Enter')searchGiftcodes()">
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="searchGiftcodes()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Tìm kiếm
+    </button>
+    <% if (searchQuery) { %>
+    <a href="/panel/admin?type=giftcodes" class="btn btn-ghost btn-sm">Xoá bộ lọc</a>
+    <% } %>
+  </div>
+  <div class="toolbar-right">
+    <span class="result-count">Tổng: <strong><%= totalGiftcodes %></strong> giftcode</span>
+  </div>
+</div>
+
+<div class="panel-card">
+  <div class="panel-card-body" style="padding: 0;">
+    <div class="admin-table-wrapper">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Mã Code</th>
+            <th>Số lượt còn</th>
+            <th>Chi tiết</th>
+            <th>Ngày tạo</th>
+            <th>Hết hạn</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (giftcodes && giftcodes.length > 0) { %>
+            <% giftcodes.forEach(function(gc) { %>
+            <tr>
+              <td><%= gc.id %></td>
+              <td style="font-weight: 600; color: var(--primary-color);"><%= gc.code %></td>
+              <td style="font-family: 'JetBrains Mono', monospace;"><%= gc.count_left %></td>
+              <td style="font-size: 12px; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="<%= gc.detail %>"><%= gc.detail %></td>
+              <td style="font-size: 12px;"><%= gc.datecreate ? new Date(gc.datecreate).toLocaleString('vi-VN') : '—' %></td>
+              <td style="font-size: 12px; color: <%= new Date(gc.expired) < new Date() ? 'var(--danger)' : 'var(--text-primary)' %>">
+                <%= gc.expired ? new Date(gc.expired).toLocaleString('vi-VN') : '—' %>
+              </td>
+            </tr>
+            <% }); %>
+          <% } else { %>
+            <tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">Không tìm thấy giftcode nào</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Pagination -->
+<% if (totalPages > 1) { %>
+<div class="pagination">
+  <% if (currentPage > 1) { %>
+    <a href="/panel/admin?type=giftcodes&page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>">&laquo;</a>
+  <% } %>
+  <% for (var p = 1; p <= totalPages; p++) { %>
+    <% if (p === currentPage) { %>
+      <span class="active"><%= p %></span>
+    <% } else if (Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages) { %>
+      <a href="/panel/admin?type=giftcodes&page=<%= p %><%= searchQuery ? '&search=' + searchQuery : '' %>"><%= p %></a>
+    <% } else if (Math.abs(p - currentPage) === 3) { %>
+      <span>...</span>
+    <% } %>
+  <% } %>
+  <% if (currentPage < totalPages) { %>
+    <a href="/panel/admin?type=giftcodes&page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>">&raquo;</a>
+  <% } %>
+</div>
+<% } %>
+
+<script>
+  function searchGiftcodes() {
+    var q = document.getElementById('giftcodeSearch').value.trim();
+    window.location.href = '/panel/admin?type=giftcodes' + (q ? '&search=' + encodeURIComponent(q) : '');
+  }
+</script>

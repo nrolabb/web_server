@@ -1,0 +1,123 @@
+<!-- Bosses Management Tab -->
+
+<!-- Gọi Boss Tới Máy Chủ -->
+<div class="panel-card" style="max-width: 600px; margin: 0 auto 20px auto;">
+  <div class="panel-card-body">
+    <h2 style="color: var(--text-primary); margin-bottom: 20px; text-align: center;">Gọi Boss Tới Máy Chủ</h2>
+    <p style="color: var(--text-muted); text-align: center; margin-bottom: 30px;">
+      Chọn Boss từ danh sách hoặc nhập ID để lập tức gọi Boss vào game. 
+      Lệnh gọi sẽ được Server xử lý ngay mà không cần khởi động lại.
+    </p>
+    
+    <div class="form-group">
+      <label class="form-label">Chọn Boss có sẵn</label>
+      <select id="bossSelect" class="form-input" onchange="updateCustomId()">
+        <option value="">-- Tùy chọn (Nhập ID bên dưới) --</option>
+        <option value="-1822">Broly (-1822)</option>
+        <option value="-82282">Super Broly (-82282)</option>
+        <option value="-28">Fide (-28)</option>
+        <option value="-100">Xên Bọ Hung (-100)</option>
+        <option value="-101">Siêu Bọ Hung (-101)</option>
+        <option value="-203">Black Goku (-203)</option>
+        <option value="-203999">Cumber (-203999)</option>
+        <option value="-29">Cooler (-29)</option>
+        <option value="-340">Pocolo (-340)</option>
+        <option value="-236">Mabu 12h (-236)</option>
+        <option value="-214">Mabu 2h (-214)</option>
+        <option value="-925">Baby (-925)</option>
+        <option value="-77">Sói Héc Quyn (-77)</option>
+        <option value="-365">Ăn Trộm (-365)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Hoặc nhập Boss ID</label>
+      <input type="number" id="customBossId" class="form-input" placeholder="Ví dụ: -1822">
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+      <button class="btn btn-primary" onclick="spawnBoss()" style="width: 100%; padding: 12px; font-size: 16px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+        Gọi Boss Ngay
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Live Boss List -->
+<div class="panel-card" style="margin-bottom: 20px;">
+  <div class="panel-card-body" style="padding: 0;">
+    <h3 style="padding: 15px 20px; margin: 0; border-bottom: 1px solid var(--border-color); color: var(--text-primary);">
+      Danh sách Boss đang xuất hiện (Cập nhật liên tục)
+    </h3>
+    <div class="admin-table-wrapper">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tên Boss</th>
+            <th>Trạng thái</th>
+            <th>Map</th>
+            <th>Khu vực</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (typeof bosses !== 'undefined' && bosses && bosses.length > 0) { %>
+            <% bosses.forEach(function(b) { %>
+              <tr>
+                <td><%= b.id %></td>
+                <td style="font-weight: 600; color: var(--primary-color);"><%= b.name %></td>
+                <td>
+                  <% if (b.status === 'REST' || b.status.includes('Chết') || b.status.includes('AFK')) { %>
+                    <span style="color: var(--danger); font-size: 13px; font-weight: bold;"><%= b.status %></span>
+                  <% } else { %>
+                    <span style="color: #28a745; font-size: 13px; font-weight: bold;"><%= b.status %></span>
+                  <% } %>
+                </td>
+                <td style="font-size: 13px;"><%= b.map %></td>
+                <td style="font-size: 13px; font-family: 'JetBrains Mono', monospace;"><%= b.zone %></td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">Chưa có dữ liệu Boss (hoặc Server Game đang tắt)</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateCustomId() {
+    var select = document.getElementById('bossSelect');
+    var input = document.getElementById('customBossId');
+    if (select.value) {
+      input.value = select.value;
+    }
+  }
+
+  async function spawnBoss() {
+    var bossId = document.getElementById('customBossId').value;
+    if (!bossId) {
+      showToast('Vui lòng chọn hoặc nhập Boss ID', 'error');
+      return;
+    }
+    
+    if (!confirm('Bạn có chắc chắn muốn gọi Boss mang ID ' + bossId + ' vào game?')) {
+      return;
+    }
+
+    var result = await adminApi('spawn-boss', { bossId: bossId });
+    if (result.success) {
+      showToast(result.message, 'success');
+      document.getElementById('bossSelect').value = '';
+      document.getElementById('customBossId').value = '';
+    } else {
+      showToast(result.message || 'Lỗi gửi lệnh', 'error');
+    }
+  }
+</script>

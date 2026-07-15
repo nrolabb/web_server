@@ -23,5 +23,7 @@ module.exports = {
         partner_key: "f8b4d5afdf53fa0664ad1fd317ef085d",
         partner_id: "16756218943"
     },
-    jwt_secretkey: "NroYunaJWT"
+    jwt_secretkey: "NroYunaJWT",
+    logPath: "c:\\NROServer\\logs",
+    maxLogLines: 500
 }

@@ -71,7 +71,8 @@ module.exports = {
         giftCodes.push(giftCode);
         const insertUserQuery = 'INSERT INTO giftcode (code, count_left, detail) VALUES (?, ?, ?)';
         await new Promise((resolve, reject) => {
-          sql.query(insertUserQuery, [giftCode, 1, JSON.stringify([selectedItem.params])], (err, insertResult) => {
+          const detailJson = Array.isArray(selectedItem.params) ? selectedItem.params : [selectedItem.params];
+          sql.query(insertUserQuery, [giftCode, 1, JSON.stringify(detailJson)], (err, insertResult) => {
             if (err) {
               console.error("Lỗi khi thêm dữ liệu vào bảng gift_codes:", err);
               reject(err);
